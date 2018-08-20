@@ -31,11 +31,11 @@ Your app will:
 
 -    Allow the user to tap on a movie poster and transition to a details screen with additional information such as:
 
-    - original title
-    - movie poster image thumbnail
-    - A plot synopsis (called overview in the api)
-    - user rating (called vote_average in the api)
-    - release date
+     - original title
+     - movie poster image thumbnail
+     - A plot synopsis (called overview in the api)
+     - user rating (called vote_average in the api)
+     - release date
 
 ## Stage 2: Trailers, Reviews, and Favorites
 User Experience
@@ -52,11 +52,11 @@ You’ll add more information to your movie details view:
 
 ## Screenshots
 **Main Activity screenshot**  
-![Main Activity screenshot showing a list of movies and the app UI](captures/1.png)  
+![Main Activity screenshot showing a list of movies and the app UI](screenshots/1.png)  
 **Main Activity Sort screenshot**  
-![Main Activity screenshot showing the different sort methods that the user can choose from](captures/2.png)  
+![Main Activity screenshot showing the different sort methods that the user can choose from](screenshots/2.png)  
 **Detail Activity screenshot**  
-![Detail Activity screenshot showing the movie detail and the customized UI](captures/3.png)  
+![Detail Activity screenshot showing the movie detail and the customized UI](screenshots/3.png)  
 
 
 
