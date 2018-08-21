@@ -32,7 +32,7 @@ import java.util.zip.Inflater;
 import butterknife.BindView;
 
 public class MainActivity extends AppCompatActivity implements GetMoviesAsyncTask.GetMoviesAsyncTaskInterface, MoviesAdapter.clickedItem{
-
+    private static final String API_KEY = BuildConfig.API_KEY;
     private ProgressBar progress;
     private TextView  noResult;
     private RecyclerView mRecyclerView;
@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements GetMoviesAsyncTas
             if(task != null)
                 task.cancel(true);
 
-            task = new GetMoviesAsyncTask(getString(R.string.movieDB, sorted, getString(R.string.api_key))+((sorted.equals("latest") == false)?"&page="+String.valueOf(page):""), this );
+            task = new GetMoviesAsyncTask(getString(R.string.movieDB, sorted, API_KEY)+((sorted.equals("latest") == false)?"&page="+String.valueOf(page):""), this );
             task.execute();
         }
         else {

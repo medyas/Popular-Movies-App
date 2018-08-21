@@ -13,8 +13,6 @@
     <string name="top">top_rated</string>
     <string name="upcoming">upcoming</string>
 
-    <string name="api_key">************************</string>
-
     <string name="movie_item_image">movie item image</string>
 
     <string name="favorite">Favorite</string>
