@@ -45,6 +45,8 @@ import org.json.JSONObject;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import kotlin.Triple;
 
 
@@ -55,18 +57,29 @@ import kotlin.Triple;
  * to handle interaction events.
  */
 public class MovieDetailFragment extends Fragment {
-    private TextView title, overview, vote, year, pop, p, author, content, msg;
-    private ImageView bigImage, poster, nextReview;
-    private FloatingActionButton playVid;
+    @BindView(R.id.imageView) ImageView bigImage;
+    @BindView(R.id.play_vid) FloatingActionButton playVid;
+    @BindView(R.id.movie_poster) ImageView poster;
+    @BindView(R.id.movie_title) TextView title;
+    @BindView(R.id.movie_overview) TextView overview;
+    @BindView(R.id.movie_year) TextView year;
+    @BindView(R.id.movie_pop) TextView pop;
+    @BindView(R.id.movie_vote) TextView vote;
+    @BindView(R.id.movie_p) TextView p;
+    @BindView(R.id.tabs) TabLayout tabs;
+    @BindView(R.id.review_author) TextView author;
+    @BindView(R.id.review_content) TextView content;
+    @BindView(R.id.next_review) ImageView nextReview;
+    @BindView(R.id.error_msg) TextView msg;
+
+    private static final String API_KEY = BuildConfig.API_KEY;
+
     private String videoKey = "";
-    private boolean play = true;
     private ArrayList<ReviewClass> reviewsList = new ArrayList<ReviewClass>();
-    private TabLayout tabs;
     private int reviewPosition = 0;
     private boolean taskFinished = false;
     private MoviesListClass movie;
     Bitmap img;
-    private Context context;
 
     private OnFragmentInteractionListener mListener;
 
@@ -91,22 +104,8 @@ public class MovieDetailFragment extends Fragment {
         movie = getArguments().getParcelable("movie");
         // Inflate the layout for this fragment
         View root =  inflater.inflate(R.layout.fragment_movie_detail, container, false);
-
-        bigImage = (ImageView) root.findViewById(R.id.imageView);
-        playVid = (FloatingActionButton) root.findViewById(R.id.play_vid);
-        poster = (ImageView) root.findViewById(R.id.movie_poster);
-        title = (TextView) root.findViewById(R.id.movie_title);
-        overview = (TextView) root.findViewById(R.id.movie_overview);
-        year = (TextView) root.findViewById(R.id.movie_year);
-        pop = (TextView) root.findViewById(R.id.movie_pop);
-        vote = (TextView) root.findViewById(R.id.movie_vote);
-        p = (TextView) root.findViewById(R.id.movie_p);
-        tabs = (TabLayout) root.findViewById(R.id.tabs);
-        author = (TextView) root.findViewById(R.id.review_author);
-        content = (TextView) root.findViewById(R.id.review_content);
+        ButterKnife.bind(this, root);
         content.setMovementMethod(new ScrollingMovementMethod());
-        nextReview = (ImageView) root.findViewById(R.id.next_review);
-        msg = (TextView) root.findViewById(R.id.error_msg);
 
         if(savedInstanceState != null) {
             videoKey = savedInstanceState.getString("videoKey");
@@ -117,8 +116,8 @@ public class MovieDetailFragment extends Fragment {
             fillReviews();
         }
         else {
-            new asyncGetVid(getString(R.string.movieVid, movie.getId(), getString(R.string.api_key))).execute();
-            new asyncGetReviews(getString(R.string.reviewUrl, movie.getId(), getString(R.string.api_key))).execute();
+            new asyncGetVid(getString(R.string.movieVid, movie.getId(), API_KEY)).execute();
+            new asyncGetReviews(getString(R.string.reviewUrl, movie.getId(), API_KEY)).execute();
         }
 
         Picasso.get().load(getString(R.string.imageUrlOrg) + movie.getBackdrop_path()).into(bigImage);
@@ -244,7 +243,6 @@ public class MovieDetailFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        this.context = context;
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
@@ -257,7 +255,6 @@ public class MovieDetailFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-        context = null;
     }
 
     @Override

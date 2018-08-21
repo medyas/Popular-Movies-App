@@ -30,6 +30,7 @@ public class FavouriteActivity extends AppCompatActivity{
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setTitle("Favourite Movies");
     }
 
 }

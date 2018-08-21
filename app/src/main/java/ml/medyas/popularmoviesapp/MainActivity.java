@@ -30,12 +30,15 @@ import java.util.List;
 import java.util.zip.Inflater;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements GetMoviesAsyncTask.GetMoviesAsyncTaskInterface, MoviesAdapter.clickedItem{
+    @BindView(R.id.recyclerview) RecyclerView mRecyclerView;
+    @BindView(R.id.progressBar) ProgressBar progress;
+    @BindView(R.id.noResult) TextView noResult;
 
-    private ProgressBar progress;
-    private TextView  noResult;
-    private RecyclerView mRecyclerView;
+    private static final String API_KEY = BuildConfig.API_KEY;
+
     private MoviesAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private ArrayList<MoviesListClass> movieList = new ArrayList<MoviesListClass>();
@@ -52,10 +55,9 @@ public class MainActivity extends AppCompatActivity implements GetMoviesAsyncTas
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
-        progress = (ProgressBar) findViewById(R.id.progressBar);
+        ButterKnife.bind(this);
+
         progress.setVisibility(View.VISIBLE);
-        noResult = (TextView) findViewById(R.id.noResult);
 
         mRecyclerView.setHasFixedSize(false);
 
@@ -215,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements GetMoviesAsyncTas
             if(task != null)
                 task.cancel(true);
 
-            task = new GetMoviesAsyncTask(getString(R.string.movieDB, sorted, getString(R.string.api_key))+((sorted.equals("latest") == false)?"&page="+String.valueOf(page):""), this );
+            task = new GetMoviesAsyncTask(getString(R.string.movieDB, sorted, API_KEY)+((sorted.equals("latest") == false)?"&page="+String.valueOf(page):""), this );
             task.execute();
         }
         else {
