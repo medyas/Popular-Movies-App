@@ -36,6 +36,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         ImageView mImageView;
+        RelativeLayout layout;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
