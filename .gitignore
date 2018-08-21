@@ -8,9 +8,5 @@
 /build
 /captures
 .externalNativeBuild
-<<<<<<< HEAD
-/.gradle.properties
-||||||| a6039ce... added Butterknife library
-/gradle.properties
-=======
->>>>>>> parent of a6039ce... added Butterknife library
+
+gradle.properties
