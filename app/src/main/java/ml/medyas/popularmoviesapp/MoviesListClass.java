@@ -1,11 +1,34 @@
 package ml.medyas.popularmoviesapp;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+@Entity(tableName = "favourite_movies")
 public class MoviesListClass implements Parcelable {
 
+    @Ignore
     public MoviesListClass(String poster_path, String adult, String overview, String release_date, String gener_ids, String id, String original_title, String original_language, String title, String backdrop_path, String popularity, String vote_count, String video, String vote_average) {
+        this.poster_path = poster_path;
+        this.adult = adult;
+        this.overview = overview;
+        this.release_date = release_date;
+        this.gener_ids = gener_ids;
+        this.id = id;
+        this.original_title = original_title;
+        this.original_language = original_language;
+        this.title = title;
+        this.backdrop_path = backdrop_path;
+        this.popularity = popularity;
+        this.vote_count = vote_count;
+        this.video = video;
+        this.vote_average = vote_average;
+    }
+
+    public MoviesListClass(int db_id, String poster_path, String adult, String overview, String release_date, String gener_ids, String id, String original_title, String original_language, String title, String backdrop_path, String popularity, String vote_count, String video, String vote_average) {
+        this.db_id = db_id;
         this.poster_path = poster_path;
         this.adult = adult;
         this.overview = overview;
@@ -138,7 +161,24 @@ public class MoviesListClass implements Parcelable {
         return CREATOR;
     }
 
+    public int getDb_id() {
+        return db_id;
+    }
 
+    public void setDb_id(int db_id) {
+        this.db_id = db_id;
+    }
+
+    public String getAdult() {
+        return adult;
+    }
+
+    public String getVideo() {
+        return video;
+    }
+
+    @PrimaryKey(autoGenerate = true)
+    private int db_id;
     private String poster_path;
     private String adult;
     private String overview;
@@ -155,6 +195,7 @@ public class MoviesListClass implements Parcelable {
     private String vote_average;
 
 
+    @Ignore
     protected MoviesListClass(Parcel in) {
         poster_path = in.readString();
         adult = in.readString();
@@ -171,6 +212,7 @@ public class MoviesListClass implements Parcelable {
         video = in.readString();
         vote_average = in.readString();
     }
+
 
     public static final Creator<MoviesListClass> CREATOR = new Creator<MoviesListClass>() {
         @Override

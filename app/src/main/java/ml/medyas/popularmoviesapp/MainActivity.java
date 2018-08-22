@@ -61,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements GetMoviesAsyncTas
 
         mRecyclerView.setHasFixedSize(false);
 
+        getSupportActionBar().setTitle("Now Playing");
+
 
         if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
             mLayoutManager = new GridLayoutManager(this, 3);
@@ -200,18 +202,23 @@ public class MainActivity extends AppCompatActivity implements GetMoviesAsyncTas
             switch (sortNumber) {
                 case 0:
                     sorted = getString(R.string.latest);
+                    getSupportActionBar().setTitle("Latest");
                     break;
                 case 1:
                     sorted = getString(R.string.playing);
+                    getSupportActionBar().setTitle("Now Playing");
                     break;
                 case 2:
                     sorted = getString(R.string.popular);
+                    getSupportActionBar().setTitle("Popular");
                     break;
                 case 3:
                     sorted = getString(R.string.top);
+                    getSupportActionBar().setTitle("Top Rated");
                     break;
                 case 4:
                     sorted = getString(R.string.upcoming);
+                    getSupportActionBar().setTitle("Upcoming");
                     break;
             }
             if(task != null)

@@ -28,7 +28,8 @@
             android:name=".FavouriteActivity"
             android:label="@string/title_activity_favourite"
             android:parentActivityName=".MainActivity" />
-        <activity android:name=".FavouriteMovieDetailActivity"></activity>
+        <activity android:name=".FavouriteMovieDetailActivity"
+            android:parentActivityName=".FavouriteActivity"></activity>
     </application>
 
 </manifest>

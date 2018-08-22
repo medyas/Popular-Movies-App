@@ -12,6 +12,7 @@ import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import android.widget.ImageView;
 
 public class MovieDetailActivity extends AppCompatActivity implements MovieDetailFragment.OnFragmentInteractionListener{
     private MoviesListClass movie;
+    private MovieDatabase mDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +62,8 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
             FragmentTransaction ft = getFragmentManager().beginTransaction();
             ft.add(R.id.layout, frag, "movie detail fragment").commit();
         }
+
+        mDb = MovieDatabase.getsInstance(this);
 
     }
 
@@ -99,54 +103,78 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
         int mItem = item.getItemId();
         switch (mItem) {
             case R.id.menu_detail_fav:
-                addToFavourite();
+                findMovie();
                 return true;
             case R.id.menu_detail_share:
-                requestRead();
-                return true;
+                return false;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    void addToFavourite() {
-        Snackbar.make(findViewById(R.id.frame_layout), movie.getTitle()+" Added to Favourite!", Snackbar.LENGTH_LONG)
-        .setAction("Undo", new View.OnClickListener() {
+    void findMovie() {
+        AppExecutors.getsInstance().diskIO().execute(new Runnable() {
             @Override
-            public void onClick(View view) {
-
+            public void run() {
+                 MoviesListClass m =  mDb.moviesDao().findMovie(movie.getId());
+                 if(m == null) {
+                     addToFavourite();
+                 }
+                 else {
+                     runOnUiThread(new Runnable() {
+                         @Override
+                         public void run() {
+                             Snackbar.make(findViewById(R.id.frame_layout), "Movie Already Exists !", Snackbar.LENGTH_LONG)
+                                     .show();
+                         }
+                     });
+                 }
             }
-        })
-        .show();
+        });
     }
 
-    public void requestRead() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    1);
-        } else {
-            shareMovie();
-        }
+    void addToFavourite() {
+        AppExecutors.getsInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                mDb.moviesDao().saveMovie(movie);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Snackbar.make(findViewById(R.id.frame_layout), "Movie Added to Favourite!", Snackbar.LENGTH_LONG)
+                                .setAction("Undo", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        deleteFavourite();
+                                    }
+                                })
+                                .show();
+                    }
+                });
+            }
+        });
     }
 
-    public void shareMovie() {
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("image/jpg");
-        BitmapDrawable drawable = (BitmapDrawable) ((ImageView) findViewById(R.id.movie_poster)).getDrawable();
-        String bitmapPath = MediaStore.Images.Media.insertImage(getContentResolver(), drawable.getBitmap(), movie.getTitle(), null);
-        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(bitmapPath));
-        shareIntent.putExtra(Intent.EXTRA_TITLE, movie.getTitle());
-        shareIntent.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(new StringBuilder()
-                .append("<p>"+movie.getOverview()+"</p>")
-                .toString()));
-        startActivity(Intent.createChooser(shareIntent, "Share Movie using"));
+    void deleteFavourite() {
+        AppExecutors.getsInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                mDb.moviesDao().deleteMovie(movie.getId());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Snackbar.make(findViewById(R.id.frame_layout), "Movie Deleted from Favourite!", Snackbar.LENGTH_LONG)
+                                .show();
+                    }
+                });
+            }
+        });
     }
 
+
+    @Override
+    public void onAttachFragment(Fragment fragment) {
+        super.onAttachFragment(fragment);
+    }
 
     @Override
     public void onFragmentInteraction(Uri uri) {

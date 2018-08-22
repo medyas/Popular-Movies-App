@@ -22,6 +22,9 @@ import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -92,9 +95,7 @@ public class MovieDetailFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        MovieDetailActivity activity = (MovieDetailActivity) getActivity();
-        movie = activity.getMovie();
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -113,7 +114,14 @@ public class MovieDetailFragment extends Fragment {
             reviewsList.addAll(savedInstanceState.<ReviewClass>getParcelableArrayList("reviewsList"));
             tabs.getTabAt(savedInstanceState.getInt("tab")).select();
             showSelected((savedInstanceState.getInt("tab") == 0 ? 1: 0));
-            fillReviews();
+            if(reviewsList.isEmpty()) {
+                taskFinished = true;
+                msg.setText("No data to display!");
+            }
+            else {
+                fillReviews();
+            }
+
         }
         else {
             new asyncGetVid(getString(R.string.movieVid, movie.getId(), API_KEY)).execute();
@@ -226,6 +234,7 @@ public class MovieDetailFragment extends Fragment {
             startActivity(webIntent);
         }
     }
+
     void watchInBrowser(String id) {
         Intent webIntent = new Intent(Intent.ACTION_VIEW,
                 Uri.parse("http://www.youtube.com/watch?v=" + id));
@@ -264,6 +273,57 @@ public class MovieDetailFragment extends Fragment {
         outState.putInt("reviewPosition", reviewPosition);
         outState.putParcelableArrayList("reviewsList", reviewsList);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int mItem = item.getItemId();
+        switch (mItem) {
+            case R.id.menu_detail_fav:
+                return false;
+            case R.id.menu_detail_share:
+                requestRead();
+                return true;
+            case R.id.menu_fav_share:
+                requestRead();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void requestRead() {
+        if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    1);
+        } else {
+            shareMovie();
+        }
+    }
+
+    public void shareMovie() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("image/jpg");
+        BitmapDrawable drawable = (BitmapDrawable) poster.getDrawable();
+        String bitmapPath = MediaStore.Images.Media.insertImage(getActivity().getContentResolver(), drawable.getBitmap(), movie.getTitle(), null);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(bitmapPath));
+        shareIntent.putExtra(Intent.EXTRA_TITLE, movie.getTitle());
+        shareIntent.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(new StringBuilder()
+                .append("<p>"+movie.getTitle()+"</p>")
+                .append("<p>"+movie.getOverview()+"</p>")
+                .append("<p><b>Movie Video Trailer    http://www.youtube.com/watch?v="+videoKey+"</b></p>")
+                .toString()));
+        startActivity(Intent.createChooser(shareIntent, "Share Movie using"));
     }
 
     /**
