@@ -1,54 +1,45 @@
 package ml.medyas.popularmoviesapp;
 
+
 import android.app.ActivityOptions;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
-import android.os.PersistableBundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
+import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.Inflater;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements GetMoviesAsyncTask.GetMoviesAsyncTaskInterface, MoviesAdapter.clickedItem{
-    @BindView(R.id.recyclerview) RecyclerView mRecyclerView;
-    @BindView(R.id.progressBar) ProgressBar progress;
-    @BindView(R.id.noResult) TextView noResult;
+public class MainActivity extends AppCompatActivity implements MoviesFragment.OnFragmentInteractionListener{
+    @BindView(R.id.toolbar)
+    Toolbar tb;
+    @BindView(R.id.category_tabs)
+    TabLayout tabs;
+    @BindView(R.id.viewpager)
+    ViewPager viewpager;
+    @BindView(R.id.menu_main_search)
+    SearchView mSearch;
+    @BindView(R.id.menu_main_fav)
+    ImageView mFav;
+    @BindView(R.id.menu_main_settings) ImageView mSettings;
 
-    private static final String API_KEY = BuildConfig.API_KEY;
+    private PagerAdapter mPagerAdapter;
 
-    private MoviesAdapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-    private ArrayList<MoviesListClass> movieList = new ArrayList<MoviesListClass>();
-    private int page = 1;
-    private int sortNumber = 1;
-    private int itemPosition = 0;
-    private GetMoviesAsyncTask task;
-
-    private final String MOVIE_POSITION = "moviePosition";
-    private final String MOVIES = "movies";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,54 +48,61 @@ public class MainActivity extends AppCompatActivity implements GetMoviesAsyncTas
 
         ButterKnife.bind(this);
 
-        progress.setVisibility(View.VISIBLE);
+        setSupportActionBar(tb);
 
-        mRecyclerView.setHasFixedSize(false);
+        // Get the ActionBar here to configure the way it behaves.
+        final ActionBar ab = getSupportActionBar();
+        //ab.setHomeAsUpIndicator(R.drawable.ic_menu); // set a custom icon for the default home button
 
-        getSupportActionBar().setTitle("Now Playing");
+        ab.setDisplayShowCustomEnabled(true); // enable overriding the default toolbar layout
+        ab.setDisplayShowTitleEnabled(false);
 
+        mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+        viewpager.setAdapter(mPagerAdapter);
+        viewpager.setCurrentItem(0);
+        tabs.setupWithViewPager(viewpager);
 
-        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
-            mLayoutManager = new GridLayoutManager(this, 3);
+        if(savedInstanceState != null) {
+            viewpager.setCurrentItem(savedInstanceState.getInt("selected", 0));
+            tabs.getTabAt(savedInstanceState.getInt("selected", 0)).select();
         }
-        else{
-            mLayoutManager = new GridLayoutManager(this, 5);
-        }
-        mRecyclerView.setLayoutManager(mLayoutManager);
 
-
-        // specify an adapter (see also next example)
-        mAdapter = new MoviesAdapter(movieList, this);
-        mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        mFav.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-
-                if (!recyclerView.canScrollVertically(1)) {
-                    Toast.makeText(getApplicationContext(),"Loading ...", Toast.LENGTH_SHORT).show();
-                    getMovies();
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), FavouriteActivity.class);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    startActivity(intent,
+                            ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
+                } else {
+                    startActivity(intent);
                 }
             }
         });
 
-        if(savedInstanceState == null) {
-            getMovies();
-        }
-        else {
-            itemPosition = savedInstanceState.getInt(MOVIE_POSITION);
-            ArrayList<MoviesListClass> m = savedInstanceState.getParcelableArrayList(MOVIES);
-            movieList.addAll(m);
-            mAdapter.notifyDataSetChanged();
-            mRecyclerView.getLayoutManager().scrollToPosition(itemPosition);
-            progress.setVisibility(View.GONE);
-        }
+        mSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getApplicationContext(), "Clicked on Settings menu option!", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        mSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return false;
+            }
+        });
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList(MOVIES, movieList);
-        outState.putInt(MOVIE_POSITION, itemPosition);
+        outState.putInt("selected", viewpager.getCurrentItem());
         super.onSaveInstanceState(outState);
     }
 
@@ -114,11 +112,11 @@ public class MainActivity extends AppCompatActivity implements GetMoviesAsyncTas
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_activity_menu, menu);
-        return super.onCreateOptionsMenu(menu);
+    public void onFragmentInteraction(Uri uri) {
+
     }
 
+    /*
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int mItem = item.getItemId();
@@ -129,10 +127,10 @@ public class MainActivity extends AppCompatActivity implements GetMoviesAsyncTas
             case R.id.menu_main_sort:
                 /*
             Solution found in https://stackoverflow.com/a/19116705/8738574
-         */
+
                 AlertDialog.Builder mySortAlertDialog = new AlertDialog.Builder(this);
                 mySortAlertDialog.setTitle("Sort By :");
-                String[] r = {"Latest", "Now Playing", "Popular", "Top Rated", "Upcoming"};
+
                 mySortAlertDialog.setSingleChoiceItems(r, sortNumber, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -145,107 +143,53 @@ public class MainActivity extends AppCompatActivity implements GetMoviesAsyncTas
                 mySortAlertDialog.create().show();
                 return true;
             case R.id.menu_main_fav:
-                Intent intent = new Intent(this, FavouriteActivity.class);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    startActivity(intent,
-                            ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
-                } else {
-                    startActivity(intent);
-                }
+
                 return true;
             case R.id.menu_main_settings:
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
+    */
 
-    @Override
-    public void onPostExecute(ArrayList<MoviesListClass> m) {
-        progress.setVisibility(View.GONE);
-        if(m == null) {
-            Log.d("task finished", "null object !");
-            movieList.clear();
-            mAdapter.notifyDataSetChanged();
-            noResult.setVisibility(View.VISIBLE);
+    private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
+
+        public ScreenSlidePagerAdapter(FragmentManager fm) {
+            super(fm);
         }
-        else {
-            if(page == 1 ){
-                try {
-                    movieList.clear();
-                    mAdapter.notifyDataSetChanged();
-                }
-                catch(NullPointerException e) {
 
-                }
-
-            }
-            try {
-                movieList.addAll(m);
-                mAdapter.notifyDataSetChanged();
-            }
-            catch (NullPointerException e) {
-
-            }
-
-            page +=1;
-            Log.d("task finished", "Done with the data");
-        }
-    }
-
-    private void getMovies() {
-        noResult.setVisibility(View.GONE);
-        String sorted = "";
-        progress.setVisibility(View.VISIBLE);
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = cm.getActiveNetworkInfo();
-        if(info != null && info.isConnected()) {
-            switch (sortNumber) {
+        @Override
+        public Fragment getItem(int position) {
+            String sorted = "";
+            switch (position) {
                 case 0:
-                    sorted = getString(R.string.latest);
-                    getSupportActionBar().setTitle("Latest");
+                    sorted = getString(R.string.playing);
                     break;
                 case 1:
-                    sorted = getString(R.string.playing);
-                    getSupportActionBar().setTitle("Now Playing");
+                    sorted = getString(R.string.popular);
                     break;
                 case 2:
-                    sorted = getString(R.string.popular);
-                    getSupportActionBar().setTitle("Popular");
+                    sorted = getString(R.string.top);
                     break;
                 case 3:
-                    sorted = getString(R.string.top);
-                    getSupportActionBar().setTitle("Top Rated");
-                    break;
-                case 4:
                     sorted = getString(R.string.upcoming);
-                    getSupportActionBar().setTitle("Upcoming");
                     break;
             }
-            if(task != null)
-                task.cancel(true);
-
-            task = new GetMoviesAsyncTask(getString(R.string.movieDB, sorted, API_KEY)+((sorted.equals("latest") == false)?"&page="+String.valueOf(page):""), this );
-            task.execute();
+            return new MoviesFragment().newInstance(sorted);
         }
-        else {
-            Log.d("NetError", "Network Error - No Internet Access");
-            progress.setVisibility(View.GONE);
+
+        @Nullable
+        @Override
+        public CharSequence getPageTitle(int position) {
+            String[] r = {"Now Playing", "Popular", "Top Rated", "Upcoming"};
+
+            return r[position];
         }
-    }
 
-
-    @Override
-    public void clickedItemPosition(int position, MoviesListClass movie) {
-        itemPosition = position;
-        Intent intent = new Intent(this, MovieDetailActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("movie", movie);
-        intent.putExtras(bundle);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            startActivity(intent,
-                    ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
-        } else {
-            startActivity(intent);
+        @Override
+        public int getCount() {
+            return 4;
         }
     }
+
 }

@@ -28,10 +28,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder
         void clickedItemPosition(int position, MoviesListClass movie);
     }
 
-    MoviesAdapter(ArrayList<MoviesListClass> mData, Context context) {
+    MoviesAdapter(ArrayList<MoviesListClass> mData, Context context, clickedItem listener) {
         mMovieList = mData;
         this.context = context;
-        this.mListener = (clickedItem) context;
+        this.mListener = listener;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

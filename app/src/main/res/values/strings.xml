@@ -26,4 +26,8 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_favourite">FavouriteActivity</string>
+    <string name="now_playing">Now Playing</string>
+    <string name="tab_popular">Popular</string>
+    <string name="top_rated">Top Rated</string>
+    <string name="tab_upcoming">Upcoming</string>
 </resources>

@@ -64,6 +64,9 @@ public class FavouriteActivity extends AppCompatActivity implements MoviesAdapte
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setTitle("Favourite Movies");
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
+        getSupportActionBar().setIcon(getResources().getDrawable(R.drawable.ic_favorite_black_24dp));
+        getSupportActionBar().setLogo(getResources().getDrawable(R.drawable.ic_favorite_black_24dp));
 
         mRecyclerView.setHasFixedSize(false);
 
@@ -77,7 +80,7 @@ public class FavouriteActivity extends AppCompatActivity implements MoviesAdapte
         mRecyclerView.setLayoutManager(mLayoutManager);
 
 
-        mAdapter = new MoviesAdapter(movieList, this);
+        mAdapter = new MoviesAdapter(movieList, this, this);
         mRecyclerView.setAdapter(mAdapter);
 
         /*if(savedInstanceState == null) {
