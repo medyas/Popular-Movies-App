@@ -14,17 +14,23 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.transition.Explode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.ImageView;
+import android.widget.ImageView;;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MovieDetailActivity extends AppCompatActivity implements MovieDetailFragment.OnFragmentInteractionListener{
+
     private MoviesListClass movie;
     private MovieDatabase mDb;
 
@@ -40,8 +46,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
         }
         setContentView(R.layout.activity_movie_detail);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+        ButterKnife.bind(this);
 
         if(savedInstanceState == null) {
             Intent intent = getIntent();
@@ -52,7 +57,6 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
             movie = savedInstanceState.getParcelable("movie");
         }
 
-        getSupportActionBar().setTitle(movie.getTitle());
 
         if (savedInstanceState == null) {
             Bundle b = new Bundle();
@@ -60,7 +64,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
             MovieDetailFragment frag = new MovieDetailFragment();
             frag.setArguments(b);
             FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.add(R.id.layout, frag, "movie detail fragment").commit();
+            ft.add(R.id.frame_layout, frag, "movie detail fragment").commit();
         }
 
         mDb = MovieDatabase.getsInstance(this);
@@ -90,25 +94,6 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
     @Override
     protected void onDestroy() {
         super.onDestroy();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.movie_detail_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int mItem = item.getItemId();
-        switch (mItem) {
-            case R.id.menu_detail_fav:
-                findMovie();
-                return true;
-            case R.id.menu_detail_share:
-                return false;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     void findMovie() {
@@ -144,7 +129,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
                                 .setAction("Undo", new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
-                                        deleteFavourite();
+                                        deleteFav();
                                     }
                                 })
                                 .show();
@@ -154,7 +139,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
         });
     }
 
-    void deleteFavourite() {
+    void deleteFav() {
         AppExecutors.getsInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
@@ -176,10 +161,20 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
         super.onAttachFragment(fragment);
     }
 
-    @Override
-    public void onFragmentInteraction(Uri uri) {
 
+    @Override
+    public void addToFavourite(MoviesListClass movie) {
+        findMovie();
     }
 
+    @Override
+    public void backPressed() {
+        onBackPressed();
+    }
+
+    @Override
+    public void deleteFavourite() {
+        deleteFav();
+    }
 }
 

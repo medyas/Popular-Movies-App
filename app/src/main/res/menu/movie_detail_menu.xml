@@ -4,7 +4,7 @@
 
     <item android:title="@string/favorite"
         android:id="@+id/menu_detail_fav"
-        android:icon="@drawable/ic_favorite_black_24dp"
+        android:icon="@drawable/ic_bookmark_black_24dp"
         app:showAsAction="ifRoom"/>
     <item android:title="@string/share"
         android:id="@+id/menu_detail_share"

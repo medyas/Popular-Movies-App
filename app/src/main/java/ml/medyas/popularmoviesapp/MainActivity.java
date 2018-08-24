@@ -21,7 +21,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Toast;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -52,7 +51,6 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.On
 
         // Get the ActionBar here to configure the way it behaves.
         final ActionBar ab = getSupportActionBar();
-        //ab.setHomeAsUpIndicator(R.drawable.ic_menu); // set a custom icon for the default home button
 
         ab.setDisplayShowCustomEnabled(true); // enable overriding the default toolbar layout
         ab.setDisplayShowTitleEnabled(false);
@@ -115,42 +113,6 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.On
     public void onFragmentInteraction(Uri uri) {
 
     }
-
-    /*
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int mItem = item.getItemId();
-        switch(mItem) {
-            case R.id.menu_main_search:
-                Log.d("search clicked", "clicked search menu item");
-                return true;
-            case R.id.menu_main_sort:
-                /*
-            Solution found in https://stackoverflow.com/a/19116705/8738574
-
-                AlertDialog.Builder mySortAlertDialog = new AlertDialog.Builder(this);
-                mySortAlertDialog.setTitle("Sort By :");
-
-                mySortAlertDialog.setSingleChoiceItems(r, sortNumber, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        page = (sortNumber != ((AlertDialog)dialogInterface).getListView().getCheckedItemPosition())? 1: page;
-                        sortNumber = ((AlertDialog)dialogInterface).getListView().getCheckedItemPosition();
-                        getMovies();
-                        dialogInterface.dismiss();
-                    }
-                });
-                mySortAlertDialog.create().show();
-                return true;
-            case R.id.menu_main_fav:
-
-                return true;
-            case R.id.menu_main_settings:
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-    */
 
     private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
 

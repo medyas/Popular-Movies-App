@@ -3,7 +3,6 @@ package ml.medyas.popularmoviesapp;
 import android.app.ActivityOptions;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -61,6 +60,8 @@ public class FavouriteActivity extends AppCompatActivity implements MoviesAdapte
         setContentView(R.layout.activity_favourite);
         ButterKnife.bind(this);
 
+        mDb = MovieDatabase.getsInstance(this);
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setTitle("Favourite Movies");
@@ -83,31 +84,28 @@ public class FavouriteActivity extends AppCompatActivity implements MoviesAdapte
         mAdapter = new MoviesAdapter(movieList, this, this);
         mRecyclerView.setAdapter(mAdapter);
 
-        /*if(savedInstanceState == null) {
-            getMovies();
-        }
-        else {
-            ArrayList<MoviesListClass> m = savedInstanceState.getParcelableArrayList("movies");
-            movieList = m;
-            mAdapter.notifyDataSetChanged();
-            progress.setVisibility(View.GONE);
-        }*/
+        progress.setVisibility(View.GONE);
 
-        mDb = MovieDatabase.getsInstance(this);
         getMovies();
     }
 
     void getMovies() {
-        //LiveData<ArrayList<MoviesListClass>> movies =  mDb.moviesDao().loadFavMovies();
         //progress.setVisibility(View.VISIBLE);
         MainViewModal viewModal = ViewModelProviders.of(this).get(MainViewModal.class);
         viewModal.getMovies().observe(this, new Observer<List<MoviesListClass>>() {
             @Override
             public void onChanged(@Nullable List<MoviesListClass> moviesListClasses) {
-                movieList.clear();
-                movieList.addAll(new ArrayList<MoviesListClass>(moviesListClasses));
-                mAdapter.notifyDataSetChanged();
-                progress.setVisibility(View.GONE);
+                if(moviesListClasses.isEmpty()) {
+                    movieList.clear();
+                    mAdapter.notifyDataSetChanged();
+                    noResult.setVisibility(View.VISIBLE);
+                }
+                else {
+                    movieList.clear();
+                    movieList.addAll(new ArrayList<MoviesListClass>(moviesListClasses));
+                    mAdapter.notifyDataSetChanged();
+                    progress.setVisibility(View.GONE);
+                }
             }
         });
     }

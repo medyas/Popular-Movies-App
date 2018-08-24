@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,6 +20,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -30,6 +35,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.kittinunf.fuel.Fuel;
 import com.github.kittinunf.fuel.core.FuelError;
@@ -61,7 +67,6 @@ import kotlin.Triple;
  */
 public class MovieDetailFragment extends Fragment {
     @BindView(R.id.imageView) ImageView bigImage;
-    @BindView(R.id.play_vid) FloatingActionButton playVid;
     @BindView(R.id.movie_poster) ImageView poster;
     @BindView(R.id.movie_title) TextView title;
     @BindView(R.id.movie_overview) TextView overview;
@@ -74,6 +79,11 @@ public class MovieDetailFragment extends Fragment {
     @BindView(R.id.review_content) TextView content;
     @BindView(R.id.next_review) ImageView nextReview;
     @BindView(R.id.error_msg) TextView msg;
+    @BindView(R.id.back_button) ImageView backButton;
+    @BindView(R.id.share_button) ImageView shareMovie;
+    @BindView(R.id.play_trailer) ImageView playTrailer;
+    @BindView(R.id.del_fav) ImageView delete_fav;
+    @BindView(R.id.fab_fav) FloatingActionButton favourite;
 
     private static final String API_KEY = BuildConfig.API_KEY;
 
@@ -83,6 +93,7 @@ public class MovieDetailFragment extends Fragment {
     private boolean taskFinished = false;
     private MoviesListClass movie;
     Bitmap img;
+    boolean toggle = false;
 
     private OnFragmentInteractionListener mListener;
 
@@ -124,8 +135,15 @@ public class MovieDetailFragment extends Fragment {
 
         }
         else {
-            new asyncGetVid(getString(R.string.movieVid, movie.getId(), API_KEY)).execute();
-            new asyncGetReviews(getString(R.string.reviewUrl, movie.getId(), API_KEY)).execute();
+            ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo info = cm.getActiveNetworkInfo();
+            if(info != null && info.isConnected()) {
+                new asyncGetVid(getString(R.string.movieVid, movie.getId(), API_KEY)).execute();
+                new asyncGetReviews(getString(R.string.reviewUrl, movie.getId(), API_KEY)).execute();
+            }
+            else {
+                Toast.makeText(getActivity().getApplicationContext(), "No internet connection available!", Toast.LENGTH_LONG);
+            }
         }
 
         Picasso.get().load(getString(R.string.imageUrlOrg) + movie.getBackdrop_path()).into(bigImage);
@@ -149,7 +167,7 @@ public class MovieDetailFragment extends Fragment {
         vote.setText(movie.getVote_average() + "/10");
         p.setText(movie.getPopularity());
 
-        tabs.addOnTabSelectedListener(new TabLayout.BaseOnTabSelectedListener() {
+        tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
 
@@ -184,12 +202,47 @@ public class MovieDetailFragment extends Fragment {
         });
 
 
-        playVid.setOnClickListener(new View.OnClickListener() {
+        playTrailer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 watchInYoutube(videoKey);
             }
         });
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListener.backPressed();
+            }
+        });
+
+        shareMovie.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                requestRead();
+            }
+        });
+
+        favourite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListener.addToFavourite(movie);
+            }
+        });
+
+        delete_fav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListener.deleteFavourite();
+            }
+        });
+
+        if(toggle) {
+            delete_fav.setVisibility(View.GONE);
+        }
+        else {
+            favourite.setImageResource(R.drawable.ic_favorite_black_24dp);
+        }
 
         return root;
     }
@@ -242,16 +295,15 @@ public class MovieDetailFragment extends Fragment {
     }
 
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        if(getActivity() instanceof MovieDetailActivity) {
+            toggle = true;
+        }
+        else {
+            toggle = false;
+        }
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
@@ -273,27 +325,6 @@ public class MovieDetailFragment extends Fragment {
         outState.putInt("reviewPosition", reviewPosition);
         outState.putParcelableArrayList("reviewsList", reviewsList);
         super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int mItem = item.getItemId();
-        switch (mItem) {
-            case R.id.menu_detail_fav:
-                return false;
-            case R.id.menu_detail_share:
-                requestRead();
-                return true;
-            case R.id.menu_fav_share:
-                requestRead();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     public void requestRead() {
@@ -338,7 +369,9 @@ public class MovieDetailFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void addToFavourite(MoviesListClass movie);
+        void backPressed();
+        void deleteFavourite();
     }
 
 

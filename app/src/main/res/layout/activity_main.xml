@@ -34,7 +34,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:id="@+id/menu_main_fav"
-                            android:layout_gravity="left"
+                            android:layout_gravity="start"
                             style="@style/Widget.AppCompat.ActionButton"
                             app:srcCompat="@drawable/ic_favorite_black_24dp"/>
 
@@ -42,7 +42,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:id="@+id/menu_main_search"
-                            android:layout_marginRight="20dp"
+                            android:layout_marginEnd="20dp"
                             android:searchIcon="@drawable/ic_search_white_24dp">
 
                         </SearchView>
@@ -53,7 +53,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/menu_main_settings"
-                        android:layout_gravity="right"
+                        android:layout_gravity="end"
                         style="@style/Widget.AppCompat.ActionButton"
                         app:srcCompat="@drawable/ic_tune_black_24dp"/>
 
@@ -65,7 +65,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/MyCustomTextAppearance"
-                app:tabSelectedTextColor="@color/white">
+                app:tabSelectedTextColor="@color/secondaryColor">
 
                 <android.support.design.widget.TabItem
                     android:layout_height="wrap_content"

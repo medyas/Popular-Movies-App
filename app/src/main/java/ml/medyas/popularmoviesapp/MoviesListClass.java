@@ -6,6 +6,7 @@ import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+
 @Entity(tableName = "favourite_movies")
 public class MoviesListClass implements Parcelable {
 
