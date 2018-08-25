@@ -1,8 +1,10 @@
 package ml.medyas.popularmoviesapp;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -32,6 +34,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -48,6 +51,7 @@ import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -88,7 +92,9 @@ public class MovieDetailFragment extends Fragment {
 
     private static final String API_KEY = BuildConfig.API_KEY;
 
-    private String videoKey = "";
+    private String videoKey[];
+    private String videoName[];
+
     private ArrayList<ReviewClass> reviewsList = new ArrayList<ReviewClass>();
     private int reviewPosition = 0;
     private boolean taskFinished = false;
@@ -121,7 +127,7 @@ public class MovieDetailFragment extends Fragment {
         content.setMovementMethod(new ScrollingMovementMethod());
 
         if(savedInstanceState != null) {
-            videoKey = savedInstanceState.getString("videoKey");
+            videoKey = savedInstanceState.getStringArray("videoKey");
             reviewPosition = savedInstanceState.getInt("reviewPosition");
             reviewsList.addAll(savedInstanceState.<ReviewClass>getParcelableArrayList("reviewsList"));
             tabs.getTabAt(savedInstanceState.getInt("tab")).select();
@@ -147,8 +153,15 @@ public class MovieDetailFragment extends Fragment {
             }
         }
 
-        Picasso.get().load(getString(R.string.imageUrlOrg) + movie.getBackdrop_path()).into(bigImage);
-        Picasso.get().load(getString(R.string.imageUrl) + movie.getPoster_path()).into(poster, new Callback() {
+        Picasso.get().load(getString(R.string.imageUrlOrg) + movie.getBackdrop_path())
+                .placeholder(R.drawable.ic_local_movies_black_24dp)
+                .error(R.drawable.ic_local_movies_black_24dp)
+                .into(bigImage);
+
+        Picasso.get().load(getString(R.string.imageUrl) + movie.getPoster_path())
+                .placeholder(R.drawable.ic_local_movies_black_24dp)
+                .error(R.drawable.ic_local_movies_black_24dp)
+                .into(poster, new Callback() {
             @Override
             public void onSuccess() {
                 BitmapDrawable drawable = (BitmapDrawable) poster.getDrawable();
@@ -206,7 +219,7 @@ public class MovieDetailFragment extends Fragment {
         playTrailer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                watchInYoutube(videoKey);
+                showDialog();
             }
         });
 
@@ -246,6 +259,20 @@ public class MovieDetailFragment extends Fragment {
         }
 
         return root;
+    }
+
+    private void showDialog() {
+        AlertDialog builderSingle = new AlertDialog.Builder(getActivity())
+                .setTitle("Select Trailer")
+                .setIcon(R.drawable.ic_local_movies_black_24dp)
+                .setItems(videoName, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int selectedIndex) {
+                        watchInYoutube(videoKey[selectedIndex]);
+                    }
+                })
+                .create();
+        builderSingle.show();
     }
 
     void showSelected(int p) {
@@ -322,7 +349,7 @@ public class MovieDetailFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putInt("tab", tabs.getSelectedTabPosition());
-        outState.putString("videoKey", videoKey);
+        outState.putStringArray("videoKey", videoKey);
         outState.putInt("reviewPosition", reviewPosition);
         outState.putParcelableArrayList("reviewsList", reviewsList);
         super.onSaveInstanceState(outState);
@@ -401,8 +428,15 @@ public class MovieDetailFragment extends Fragment {
         protected void onPostExecute(String str) {
             try {
                 JSONObject temp = new JSONObject(str);
-                JSONObject json = temp.optJSONArray("results").optJSONObject(0);
-                videoKey = json.optString("key");
+                JSONArray json = temp.optJSONArray("results");
+                int length = json.length();
+                videoName = new String[length];
+                videoKey  = new String[length];
+
+                for (int i = 0; i < length; i++) {
+                    videoKey[i] = json.optJSONObject(i).optString("key");
+                    videoName[i] = json.optJSONObject(i).optString("name");
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }

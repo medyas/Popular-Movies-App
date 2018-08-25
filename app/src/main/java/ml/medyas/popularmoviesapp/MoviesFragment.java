@@ -102,12 +102,15 @@ public class MoviesFragment extends Fragment  implements GetMoviesAsyncTask.GetM
 
         mRecyclerView.setHasFixedSize(false);
 
-        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
-            mLayoutManager = new GridLayoutManager(getActivity().getApplicationContext(), 3);
+        int mNoOfColumns = Utility.calculateNoOfColumns(getActivity().getApplicationContext());
+        mLayoutManager = new GridLayoutManager(getActivity().getApplicationContext(), mNoOfColumns);
+
+        /*if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+            mLayoutManager = new GridLayoutManager(getActivity().getApplicationContext(), mNoOfColumns);
         }
         else{
-            mLayoutManager = new GridLayoutManager(getActivity().getApplicationContext(), 5);
-        }
+            mLayoutManager = new GridLayoutManager(getActivity().getApplicationContext(), mNoOfColumns);
+        }*/
         mRecyclerView.setLayoutManager(mLayoutManager);
 
 

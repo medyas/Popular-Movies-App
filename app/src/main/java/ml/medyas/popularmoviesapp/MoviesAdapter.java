@@ -67,9 +67,12 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-        MoviesListClass movie = mMovieList.get(i);
+        MoviesListClass movie = mMovieList.get(viewHolder.getAdapterPosition());
         viewHolder.year.setText(movie.getRelease_date().substring(0, 4));
-        Picasso.get().load(context.getResources().getString(R.string.imageUrl)+movie.getPoster_path()).into(viewHolder.mImageView);
+        Picasso.get().load(context.getResources().getString(R.string.imageUrl)+movie.getPoster_path())
+                .placeholder(R.drawable.ic_local_movies_black_24dp)
+                .error(R.drawable.ic_local_movies_black_24dp)
+                .into(viewHolder.mImageView);
     }
 
     @Override
