@@ -94,6 +94,7 @@ public class MovieDetailFragment extends Fragment {
 
     private String videoKey[];
     private String videoName[];
+    private boolean gotTrailers = false;
 
     private ArrayList<ReviewClass> reviewsList = new ArrayList<ReviewClass>();
     private int reviewPosition = 0;
@@ -127,11 +128,15 @@ public class MovieDetailFragment extends Fragment {
         content.setMovementMethod(new ScrollingMovementMethod());
 
         if(savedInstanceState != null) {
+            videoKey = new String[savedInstanceState.getStringArray("videoKey").length];
             videoKey = savedInstanceState.getStringArray("videoKey");
+            videoName = new String[savedInstanceState.getStringArray("videoTrailers").length];
+            videoName =  savedInstanceState.getStringArray("videoTrailers");
             reviewPosition = savedInstanceState.getInt("reviewPosition");
             reviewsList.addAll(savedInstanceState.<ReviewClass>getParcelableArrayList("reviewsList"));
             tabs.getTabAt(savedInstanceState.getInt("tab")).select();
             showSelected((savedInstanceState.getInt("tab") == 0 ? 1: 0));
+            gotTrailers = true;
             if(reviewsList.isEmpty()) {
                 taskFinished = true;
                 msg.setText("No data to display!");
@@ -219,7 +224,12 @@ public class MovieDetailFragment extends Fragment {
         playTrailer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDialog();
+                if(gotTrailers) {
+                    showDialog();
+                }
+                else {
+                    Toast.makeText(getActivity(), "Still Loading Trailers...", Toast.LENGTH_LONG);
+                }
             }
         });
 
@@ -350,6 +360,7 @@ public class MovieDetailFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         outState.putInt("tab", tabs.getSelectedTabPosition());
         outState.putStringArray("videoKey", videoKey);
+        outState.putStringArray("videoTrailers", videoName);
         outState.putInt("reviewPosition", reviewPosition);
         outState.putParcelableArrayList("reviewsList", reviewsList);
         super.onSaveInstanceState(outState);
@@ -437,6 +448,7 @@ public class MovieDetailFragment extends Fragment {
                     videoKey[i] = json.optJSONObject(i).optString("key");
                     videoName[i] = json.optJSONObject(i).optString("name");
                 }
+                gotTrailers = true;
             } catch (JSONException e) {
                 e.printStackTrace();
             }
