@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -37,10 +38,12 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder
     public class ViewHolder extends RecyclerView.ViewHolder {
         ImageView mImageView;
         RelativeLayout layout;
+        TextView year;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             mImageView = (ImageView) itemView.findViewById(R.id.image_view);
+            year = itemView.findViewById(R.id.release_year);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -65,6 +68,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
         MoviesListClass movie = mMovieList.get(i);
+        viewHolder.year.setText(movie.getRelease_date().substring(0, 4));
         Picasso.get().load(context.getResources().getString(R.string.imageUrl)+movie.getPoster_path()).into(viewHolder.mImageView);
     }
 

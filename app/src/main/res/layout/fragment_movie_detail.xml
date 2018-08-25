@@ -13,11 +13,12 @@
 
         <ImageView
             android:id="@+id/imageView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="220dp"
             android:background="@color/primaryDarkColor"
             android:contentDescription="@string/movie_backdrop_image"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_movie_cinema" />
 
