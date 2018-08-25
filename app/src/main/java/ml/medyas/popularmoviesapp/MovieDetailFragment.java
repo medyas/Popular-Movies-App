@@ -66,6 +66,7 @@ import kotlin.Triple;
  * to handle interaction events.
  */
 public class MovieDetailFragment extends Fragment {
+    public static final String HTTP_WWW_YOUTUBE_COM_WATCH_V = "http://www.youtube.com/watch?v=";
     @BindView(R.id.imageView) ImageView bigImage;
     @BindView(R.id.movie_poster) ImageView poster;
     @BindView(R.id.movie_title) TextView title;
@@ -258,10 +259,10 @@ public class MovieDetailFragment extends Fragment {
             else {
                 msg.setVisibility(View.VISIBLE);
                 if(taskFinished) {
-                    msg.setText("No data to display!");
+                    msg.setText(getResources().getString(R.string.no_thing_to_display));
                 }
                 else {
-                    msg.setText("Retriving the reviews from the server...");
+                    msg.setText(getResources().getString(R.string.getting_data));
                 }
             }
         } else {
@@ -280,7 +281,7 @@ public class MovieDetailFragment extends Fragment {
     void watchInYoutube(String id){
         Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + id));
         Intent webIntent = new Intent(Intent.ACTION_VIEW,
-                Uri.parse("http://www.youtube.com/watch?v=" + id));
+                Uri.parse(HTTP_WWW_YOUTUBE_COM_WATCH_V + id));
         try {
             startActivity(appIntent);
         } catch (ActivityNotFoundException ex) {
@@ -290,7 +291,7 @@ public class MovieDetailFragment extends Fragment {
 
     void watchInBrowser(String id) {
         Intent webIntent = new Intent(Intent.ACTION_VIEW,
-                Uri.parse("http://www.youtube.com/watch?v=" + id));
+                Uri.parse(HTTP_WWW_YOUTUBE_COM_WATCH_V + id));
         startActivity(webIntent);
     }
 
