@@ -37,6 +37,14 @@ Your app will:
      - user rating (called vote_average in the api)
      - release date
 
+## Screenshots
+**Main Activity screenshot**  
+![Main Activity screenshot showing a list of movies and the app UI](screenshots/stage1_1.png)  
+**Main Activity Sort screenshot**  
+![Main Activity screenshot showing the different sort methods that the user can choose from](screenshots/stage1_2.png)  
+**Detail Activity screenshot**  
+![Detail Activity screenshot showing the movie detail and the customized UI](screenshots/stage1_3.png)  
+
 ## Stage 2: Trailers, Reviews, and Favorites
 User Experience
 
@@ -52,11 +60,11 @@ You’ll add more information to your movie details view:
 
 ## Screenshots
 **Main Activity screenshot**  
-![Main Activity screenshot showing a list of movies and the app UI](screenshots/1.png)  
-**Main Activity Sort screenshot**  
-![Main Activity screenshot showing the different sort methods that the user can choose from](screenshots/2.png)  
-**Detail Activity screenshot**  
-![Detail Activity screenshot showing the movie detail and the customized UI](screenshots/3.png)  
+![Main Activity screenshot showing a list of movies and the app UI](screenshots/stage2_1.png)  
+**Movie Detail activity screenshot**  
+![Movie Detail activity screenshot showing the the details of the movie with menu to allow sharing, adding to favourite and playing trailer plus the reviews](screenshots/stage2_2.png)  
+**Favourite Movie Detail Activity screenshot**  
+![Favourite Detail activity screenshot showing the the details of the movie with menu to allow sharing, deleting from favourite and playing trailer plus the reviews](screenshots/stage2_3.png)  
 
 
 
